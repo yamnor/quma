@@ -24,15 +24,16 @@ def load_molecules():
 
 molecules = load_molecules()
 
-@app.get("/")
+@app.route("/")
 def index():
   return template("index.html", molecules = molecules, gms = gparse("Water", "HF", "STO-3G"))
 
-@app.post("/")
+@app.route("/", method="POST")
 def view():
   molecule = request.forms.get("selected-molecule")
   method = request.forms.get("selected-method")
   basis = request.forms.get("selected-basis")
   return template("index.html", molecules = molecules, gms = gparse(molecule, method, basis))
 
-run(app, host="localhost", port=8080)
+if __name__ == "__main__":
+  app.run(host='localhost', port=8080)
