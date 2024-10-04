@@ -3,7 +3,7 @@
   "builds": [
     {
       "src": "./index.py",
-      "use": "@vercel/python"
+      "use": "gunicorn -w 2 index:app"
     }
   ],
   "routes": [
