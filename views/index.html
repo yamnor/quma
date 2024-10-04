@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>Quma</title>
+
+  % import time
+  <link rel="stylesheet" href="/static/style.css?v={{ time.time() }}" />
+  <link rel="stylesheet" href="/static/fonts/fonts.css" />
+
+  <script defer data-domain="quma.yamnor.me" src="https://plausible.io/js/script.js"></script>
+
+  <link rel="stylesheet" href="/static/nice-select2.css" />
+  <script src="/static/nice-select2.js"></script>
+
+  <script src="/static/jsmol/JSmol.min.js"></script>
+
+  <script>
+    var Info = {
+      width:  '100%',
+      height: '100%',
+      j2sPath: "/static/jsmol/j2s",
+      script: 'load "{{ gms.filepath }}" filter "CHARGE=LOW";',
+    }
+    $(document).ready(function() {
+      $("#jmol").html(Jmol.getAppletHtml("myJmol", Info))
+      Jmol.script(myJmol, 'console; spin on;');
+      Jmol.script(myJmol, 'atomSet = {*}; n = atomSet.size; var mx = 0;var my = 0;var mz = 0; for (i=0; i<n; i+=1): mx = mx+atomSet[i].x*atomSet[i].mass; my = my+atomSet[i].y*atomSet[i].mass; mz = mz+atomSet[i].z*atomSet[i].mass'); 
+      Jmol.script(myJmol, 'atomSet = {*}; m = atomSet.mass.sum; cx = @mx / @m; cy = @my / @m; cz = @mz / @m;');
+      Jmol.script(myJmol, 'dx = @cx - {{ gms.dipole_x }}; dy = @cy - {{ gms.dipole_y }}; dz = @cz - {{ gms.dipole_z }}');
+      Jmol.script(myJmol, 'dx1 = @cx+0.5*(@cx-@dx); dy1 = @cy+0.5*(@cy-@dy); dz1 = @cz+0.5*(@cz-@dz);');
+      Jmol.script(myJmol, 'dx2 = @dx+0.5*(@cx-@dx); dy2 = @dy+0.5*(@cy-@dy); dz2 = @dz+0.5*(@cz-@dz);');
+    });
+
+    const molecules = new Map();
+    % for molecule in molecules:
+    molecules.set('{{ molecule }}', new Map());
+    %   for method in molecules[molecule]:
+    molecules.get('{{ molecule }}').set('{{ method }}', new Array());
+    %     for basis in molecules[molecule][method]:
+    molecules.get('{{ molecule }}').get('{{ method }}').push('{{ basis }}');
+    %     end
+    %   end
+    % end
+  </script>
+
+  % properties = ["Orbitals", "Charges"]
+  % if len(gms.ir_spectra) > 0:
+  %   properties += ["Vibrations", "Thermodynamics"]
+  % end
+  % properties += ["About"]
+</head>
+<body>
+
+<header id="header-wide">
+  <div class="flex-row space-between align-center" >
+    <a href="/" id="title">quma</a>
+    <span id="show-about">About</span>
+  </div>
+</header>
+
+<header id="header-mobile">
+  <div class="flex-row space-between align-center" >
+    <svg id="show-nav-system" class="control-button"><use href="/static/icons.svg#search"></svg>
+    <a href="/" id="title">quma</a>
+    <svg id="show-nav-property" class="control-button"><use href="/static/icons.svg#menu"></svg>
+  </div>
+</header>
+
+<nav id="nav">
+  <div class="flex-row space-between align-center">
+    <div id="nav-system">
+      <form action="/" method="post" id="select-system" class="flex-row space-between align-center">
+        <svg class="control-button hide-nav"><use href="/static/icons.svg#close"></svg>
+        <select id="select-molecule" name="selected-molecule">
+          % for molecule in molecules:
+          %   isSelected = "selected" if molecule == gms.molecule else ""
+          <option value="{{ molecule }}" {{ isSelected }}>{{ molecule }}</option>
+          % end
+        </select>
+        <select id="select-method" name="selected-method">
+          % for method in molecules[gms.molecule]:
+          %   isSelected = "selected" if method == gms.method else ""
+          <option value="{{ method }}" {{ isSelected }}>{{ method }}</option>
+          % end
+        </select>
+        <select id="select-basis" name="selected-basis">
+          % print(gms.molecule, gms.method, gms.basis)
+          % for basis in molecules[gms.molecule][gms.method]:
+          %   isSelected = "selected" if basis == gms.basis else ""
+          <option value="{{ basis }}" {{ isSelected }}>{{ basis }}</option>
+          % end
+        </select>
+      </form>
+    </div>
+    <div id="nav-property">
+      <div class="flex-row space-between align-center">
+        <select id="select-property" name="selected-property">
+          % for property in ["Overview"] + properties:
+          %   isSelected = "selected" if property == "Overview" else ""
+          <option value="{{ property }}" {{ isSelected }}>{{ property }}</option>
+          % end
+        </select>
+        <svg class="control-button hide-nav" width="24px" height="24px"><use href="/static/icons.svg#close"></svg>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex-row justify-center">
+  <main id="main">
+
+    <div class="flex-column">
+      <div id='jmol'></div>
+    </div>
+
+    <div class="flex-row">
+      <input type="checkbox" id="open-model-menu"><label for="open-model-menu">
+        <svg class="control-button"><use href="/static/icons.svg#setting"></svg></label>
+      <input type="checkbox" id="open-measure-menu"><label for="open-measure-menu">
+        <svg class="control-button"><use href="/static/icons.svg#measure"></svg></label>
+      <input type="checkbox" id="show-hydrogens" checked><label for="show-hydrogens">
+        <svg class="control-button"><use href="/static/icons.svg#hydrogen"></svg></label>
+      <input type="checkbox" id="show-labels"><label for="show-labels">
+        <svg class="control-button"><use href="/static/icons.svg#label"></svg></label>
+      <input type="checkbox" id="start-spin" checked><label for="start-spin">
+        <svg class="control-button"><use href="/static/icons.svg#spin"></svg></label>
+      <input type="checkbox" id="take-photo"><label for="take-photo">
+        <svg class="control-button"><use href="/static/icons.svg#camera"></svg></label>
+      <input type="checkbox" id="show-console"><label for="show-console">
+        <svg class="control-button"><use href="/static/icons.svg#console"></svg></label>
+      <div id="model-menu" class="control-menu">
+        <input type="radio" id="model-wireframe" name="model" value="wireframe">
+          <label for="model-wireframe">wireframe</label>
+        <input type="radio" id="model-stick" name="model" value="stick">
+          <label for="model-stick">stick</label>
+        <input type="radio" id="model-stickbold" name="model" value="stickbold">
+          <label for="model-stickbold">stick (bold)</label>
+        <input type="radio" id="model-ballstick" name="model" value="ballstick" checked>
+          <label for="model-ballstick">ball & stick</label>
+        <input type="radio" id="model-spacefilling" name="model" value="spacefilling">
+          <label for="model-spacefilling">spacefilling</label>
+      </div>
+      <div id="menu-measure" class="control-menu">
+        <input type="radio" id="measure-none" name="measure" value="none" checked>
+          <label for="measure-none">none</label>
+        <input type="radio" id="measure-distance" name="measure" value="distance">
+          <label for="measure-distance">distance</label>
+        <input type="radio" id="measure-angle" name="measure" value="angle">
+          <label for="measure-angle">angle</label>
+        <input type="radio" id="measure-torsion" name="measure" value="torsion">
+          <label for="measure-torsion">torsion</label>
+        <input type="radio" id="measure-distances" name="measure" value="distances">
+          <label for="measure-distances">all distances</label>
+        <input type="radio" id="measure-angles" name="measure" value="angles">
+          <label for="measure-angles">all angles</label>
+        <input type="radio" id="measure-torsions" name="measure" value="torsions">
+          <label for="measure-torsions">all torsions</label>
+      </div>
+    </div>
+
+    <div id="myJmol_console"></div>
+  </main>
+
+  <aside id="side">
+
+    <div id="Overview" class="property">
+      <table>
+        <tr><td class="label">Molecule</td><td class="value">{{ gms.molecule }}</td><td class="unit"></td></tr>
+        <tr><td class="label">Method</td><td class="value">{{ gms.method }}</td><td class="unit"></td></tr>
+        <tr><td class="label">Basis Set</td><td class="value">{{ gms.basis }}</td><td class="unit"></td></tr>
+        <tr><td class="label">N<sub>basis</sub></td><td class="value">{{ gms.num_basis }}</td><td class="unit"></td></tr>
+        <tr><td class="label">N<sub>electron</sub></td><td class="value">{{ gms.num_electrons }}</td><td class="unit"></td></tr>
+        <tr><td class="label">E<sub>total</sub></td><td class="value">{{ f'{gms.total_energy:.6f}' }}</td><td class="unit">Hartree</td></tr>
+        <tr><td class="label">E<sub>potential</sub></td><td class="value">{{ f'{gms.potential_energy:.6f}' }}</td><td class="unit">Hartree</td></tr>
+        <tr><td class="label">E<sub>kinetic</sub></td><td class="value">{{ f'{gms.kinetic_energy:.6f}' }}</td><td class="unit">Hartree</td></tr>
+        <tr><td class="label">Virial Ratio</td><td class="value">{{ f'{gms.virial_ratio:.6f}' }}</td><td class="unit">Hartree</td></tr>
+      </table>
+
+      <details>
+        <summary></summary>
+        <div class="details-container">
+          <dl>
+            <dt>E<sub>total</sub></dt>
+            <dd>Total energy</dd>
+            <dt>E<sub>potential</sub></dt>
+            <dd>Potential energy</dd>
+            <dt>E<sub>kinetic</sub></dt>
+            <dd>Kinetic energy</dd>
+            <dt>Virial Ratio</dt>
+            <dd>Virial Ratio</dd>
+          </dl>
+        </div>
+      </details>
+    </div>
+
+    <div id="Charges" class="property">
+      <div class="switch-container">
+        <input type="radio" id="show-mep" name="charge" />
+        <label for="show-mep" class="switch">ESP</label>
+        <input type="radio" id="show-charges" name="charge" />
+        <label for="show-charges" class="switch">Charge</label>
+        <input type="checkbox" id="show-dipole" />
+        <label for="show-dipole" class="switch">Dipole ( <span class="value">{{ f'{gms.dipole_moment:.3f}' }}</span> <span class="unit">Debye</span> )</label></td>
+      </div>
+      <table>
+        <tr><th></th><th>Atom</th><th>Charge</th><th>Population</th></tr>
+        % for index, charge in enumerate(gms.lowdin_charges, 0):
+        %   color = "lightblue"
+        %   if charge > 0:
+        %     color = "pink"
+        %   end
+        <tr><td class="label">{{ index + 1 }}</td>
+            <td class="label">{{ gms.atoms[index] }}</td>
+            <td class="value" style="color: var(--{{color}});">{{ f'{charge:.3f}' }}</td>
+            <td class="value">{{ f'{gms.lowdin_populations[index]:.3f}' }}</td></tr>
+        % end
+      </table>
+      <details>
+        <summary></summary>
+      </details>
+    </div>
+
+    <div id="Orbitals" class="property">
+      <table>
+        <tr><th></th><th>Energy (au)</th><th></th></tr>
+        % n_homo = int(gms.num_electrons / 2) - 1
+        % n_lumo = n_homo + 1
+        % for index, energy in enumerate(gms.orbital_energies[1:], 1):
+        <tr>
+          <td>
+            <input type="radio" id="mo-{{ index }}" name="orbital" />
+            <label for="mo-{{ index }}" class="button">{{ index }}</label>
+          </td>
+        %   color = "lightblue"
+        %   if energy > 0:
+        %     color = "pink"
+        %   end
+          <td class="value"; style='color: var(--{{ color }});'>{{ f'{energy:.3f}' }}</td>
+        %   label = ""
+        %   if index == n_homo:
+        %     label = "HOMO"
+        %   elif index == n_lumo:
+        %     label = "LUMO"
+        %   end
+          <td class="value">{{ label }}</td>
+        </tr>
+        % end
+      </table>
+      <details>
+        <summary></summary>
+      </details>
+    </div>
+
+    <div id="Vibrations" class="property">
+      <table>
+        <tr><th></th><th>Freq (cm<sup>-1</sup>)</th><th>IR Int</th>
+        </tr>
+        % for index, data in enumerate(gms.ir_spectra[gms.offset:], 1):
+        <tr>
+          <td>
+            <input type="radio" id="vib-{{ index }}" name="vibration" />
+            <label for="vib-{{ index }}" class="button">{{ index }}</label>
+          </td>
+          <td class="value">{{ f'{data[0]:.2f}' }}</td>
+          <td class="value">{{ f'{data[1]:.2f}' }}</td>
+        </tr>
+        % end
+      </table>
+      <details>
+        <summary></summary>
+      </details>
+    </div>
+
+    <div id="Thermodynamics" class="property">
+      <table>
+        <tr><td class="label">ZPE</td><td class="value">{{ f'{gms.ZPE:.3f}' }}</td><td class="unit">kcal mol<sup>-1</sup></td></tr>
+        <tr><td class="label">T</td><td class="value">{{ f'{gms.temperature:.3f}' }}</td><td class="unit">K</td></tr>
+        <tr><td class="label">U</td><td class="value">{{ f'{gms.internal_energy:.3f}' }}</td><td class="unit">kcal mol<sup>-1</sup></td></tr>
+        <tr><td class="label">H</td><td class="value">{{ f'{gms.enthalpy:.3f}' }}</td><td class="unit">kcal mol<sup>-1</sup></td></tr>
+        <tr><td class="label">S</td><td class="value">{{ f'{gms.entropy:.3f}' }}</td><td class="unit">cal mol<sup>-1</sup> K<sup>-1</sup></td></tr>
+        <tr><td class="label">G</td><td class="value">{{ f'{gms.gibbs:.3f}' }}</td><td class="unit">kcal mol<sup>-1</sup></td></tr>
+        <tr><td class="label">C<sub>v</sub></td><td class="value">{{ f'{gms.heat_capacity_v:.3f}' }}</td><td class="unit">cal mol<sup>-1</sup> K<sup>-1</sup></td></tr>
+        <tr><td class="label">C<sub>p</sub></td><td class="value">{{ f'{gms.heat_capacity_p:.3f}' }}</td><td class="unit">cal mol<sup>-1</sup> K<sup>-1</sup></td></tr>
+      </table>
+      <details>
+        <summary></summary>
+        <div class="details-container">
+          <dl>
+            <dt>ZPE</dt> <dd>Zero Point Vibrational Energy</dd>
+            <dt>T</dt> <dd>Temperature</dd>
+            <dt>U</dt> <dd>Internal Energy</dd>
+            <dt>H</dt> <dd>Enthalpy</dd>
+            <dt>S</dt> <dd>Entropy</dd>
+            <dt>G</dt> <dd>Gibbs Free Energy</dd>
+            <dt>C<sub>v</sub></dt> <dd>Heat Capacity at Constant Volume</dd>
+            <dt>C<sub>p</sub></dt> <dd>Heat Capacity at Constant Pressure</dd>
+          </dl>
+        </div>
+      </details>
+    </div>
+
+    <div id="About" class="property">
+      <h2>What is QChest?</h2>
+      <p>QChest is a web application designed to visualize the results of quantum chemistry calculations of various molecules at various levels of theory.</p>
+    </div>
+
+  </aside>
+</div>
+
+<script>
+  NiceSelect.bind(document.getElementById('select-molecule'), {searchable: true});
+  NiceSelect.bind(document.getElementById('select-method'));
+  NiceSelect.bind(document.getElementById('select-basis'));
+  var selectProperty = NiceSelect.bind(document.getElementById('select-property'));
+
+  $(document).ready(function() {
+    $('#model-menu').hide();
+    $('#menu-measure').hide();
+    $('#myJmol_console').hide();
+
+    % for property in properties:
+    $('#{{ property }}').hide();
+    % end
+  });
+
+  $('#show-nav-system').on('click', function() {
+    $('#header-mobile').hide();
+    $('#nav').show();
+    $('#nav-system').show();
+    $('#nav-property').hide();
+  });
+  $('#show-nav-property').on('click', function() {
+    $('#header-mobile').hide();
+    $('#nav').show();
+    $('#nav-system').hide();
+    $('#nav-property').show();
+    $('#side').show();
+  });
+  $('.hide-nav').on('click', function() {
+    $('#header-mobile').show();
+    $('#nav').hide();
+    $('#side').hide();
+  });
+
+  $('#select-property').on('change', function() {
+    const selectedProperty = $('#select-property').val();
+    % for property in ["Overview"] + properties:
+    $('#{{ property }}').hide();
+    % end
+    $('#' + selectedProperty).show();
+    Jmol.script(myJmol, 'mo off; vibration off; isosurface delete; dipole arrow1 off; draw ctr off; frame 0;');
+  });
+
+  $('#show-about').on('click', function() {
+    $('#select-property + div.nice-select').find('.selected').removeClass('selected');
+    $('#select-property').val('About');
+    selectProperty.update();
+    $('#select-property').trigger('change');
+  });
+
+  $('#select-molecule').on('change', function() {
+    const molecule = $(this).val();
+    if (molecule != '{{ gms.molecule }}') {
+      const method = molecules.get(molecule).keys().next().value;
+      const basis = molecules.get(molecule).get(method)[0];
+      $('#select-method').append($('<option>').val(method));
+      $('#select-method').val(method);
+      $('#select-basis').append($('<option>').val(basis));
+      $('#select-basis').val(basis);
+      $('#select-system').submit();
+    }
+  });
+
+  $('#select-method').on('change', function() {
+    const method = $(this).val();
+    if (method != '{{ gms.method }}') {
+      const molecule = $('#select-molecule').val();
+      const basis = molecules.get(molecule).get(method)[0];
+      $('#select-basis').append($('<option>').val(basis));
+      $('#select-basis').val(basis);
+      $('#select-system').submit();
+    }
+  });
+
+  $('#select-basis').on('change', function() {
+    const basis = $(this).val();
+    if (basis != '{{ gms.basis }}') {
+      $('#select-system').submit();
+    }
+  });
+
+  $('#open-model-menu').change(function() {
+    $('#model-menu').toggle();
+  });
+  $('input[name="model"]').change(function() {
+    switch ($(this).val()) {
+      case 'wireframe':
+        Jmol.script(myJmol, 'spacefill off; wireframe 10;');
+        break;
+      case 'stick':
+        Jmol.script(myJmol, 'spacefill off; wireframe 40;');
+        break;
+      case 'stickbold':
+        Jmol.script(myJmol, 'spacefill off; wireframe 80;');
+        break;
+      case 'ballstick':
+        Jmol.script(myJmol, 'spacefill 23%; wireframe 38;');
+        break;
+      case 'spacefilling':
+        Jmol.script(myJmol, 'spacefill 100%; wireframe off;');
+        break;
+    }
+  });
+
+  $('#open-measure-menu').change(function() {
+    $('#menu-measure').toggle();
+  });
+  $('input[name="measure"]').change(function() {
+    switch ($(this).val()) {
+      case 'none':
+        Jmol.script(myJmol, 'measure delete;');
+        break;
+      case 'distance':
+        Jmol.script(myJmol, 'set pickingStyle measure on; set picking measure distance;');
+        break;
+      case 'angle':
+        Jmol.script(myJmol, 'set pickingStyle measure on; set picking measure angle;');
+        break;
+      case 'torsion':
+        Jmol.script(myJmol, 'set pickingStyle measure on; set picking measure torsion;');
+      case 'distances':
+        Jmol.script(myJmol, 'measurements delete; measure allconnected (*) (*);');
+        break;
+      case 'angles':
+        Jmol.script(myJmol, 'measurements delete; measure allconnected (*) (*) (*);');
+        break;
+      case 'torsions':
+        Jmol.script(myJmol, 'measurements delete; measure allconnected (*) (*) (*) (*);');
+        break;
+    }
+  });
+  // hydrogens, labels, spin
+  $('#show-hydrogens').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, 'set showHydrogens true;');
+    } else {
+      Jmol.script(myJmol, 'set showHydrogens false;');
+    }
+  });
+  $('#show-labels').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, 'label on;');
+    } else {
+      Jmol.script(myJmol, 'label off;');
+    }
+  });
+  $('#start-spin').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, 'spin on;');
+    } else {
+      Jmol.script(myJmol, 'spin off;');
+    }
+  });
+  // console
+  $('#show-console').change(function() {
+    $('#myJmol_console').toggle();
+    $("html,body").animate({scrollTop:$('#myJmol_console').offset().top});
+  });
+
+  % set_dipole = 'dipole arrow1 ' + str(gms.dipole_moment) + ' {@dx1,@dy1,@dz1} {@dx2,@dy2,@dz2} NOCROSS width 0.05; color $arrow1 black; '
+  % show_dipole = set_dipole + 'dipole arrow1 on; draw ctr diameter 0.1 color black {@cx,@cy,@cz} on;'
+  % hide_dipole = 'dipole arrow1 off; draw ctr off;'
+  % show_mep = 'isosurface resolution 6 vdw color range -0.1 0.1 map MEP translucent;'
+  % show_charges = 'isosurface cutoff 3.0 resolution 6 mep translucent;'
+  $('#show-dipole').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, "{{ show_dipole }}");
+    } else {
+      Jmol.script(myJmol, "{{ hide_dipole }}");
+    }
+  });
+
+  $('#show-charges').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, "{{ show_charges }}");
+    } else {
+      Jmol.script(myJmol, 'isosurface delete;');
+    }
+  });
+
+  $('#show-mep').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, "{{ show_mep }}");
+    } else {
+      Jmol.script(myJmol, 'isosurface delete;');
+    }
+  });
+
+  % for index, energy in enumerate(gms.orbital_energies, 1):
+  $('#mo-{{ index }}').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, 'frame 0; mo {{ index }};');
+    } else {
+      Jmol.script(myJmol, 'mo off;');
+    }
+  });
+  % end
+
+  % for index, data in enumerate(gms.ir_spectra[gms.offset:], 1):
+  $('#vib-{{ index }}').change(function() {
+    if ($(this).is(':checked')) {
+      Jmol.script(myJmol, 'frame {{ index + gms.offset }}; vibration on;');
+    } else {
+      Jmol.script(myJmol, 'vibration off; frame 0;');
+    }
+  });
+  % end
+
+  $('#select-property').on('change', function() {
+    const selectedProperty = $('#select-property').val();
+    switch (selectedProperty) {
+      case 'Charges':
+        $('#show-dipole').prop('checked', false);
+        $('#show-mep').prop('checked', true);
+        Jmol.script(myJmol, "{{ show_mep }}");
+        Jmol.script(myJmol, "{{ hide_dipole }}");
+        break;
+      case 'Orbitals':
+        $('#mo-{{ n_homo }}').prop('checked', true);
+        Jmol.script(myJmol, 'frame 0; mo {{ n_homo }};');
+        break;
+      case 'Vibrations':
+        $('#vib-1').prop('checked', true);
+        Jmol.script(myJmol, 'frame {{ gms.offset + 1 }}; vibration on;');
+        break;
+      case 'Thermodynamics':
+        Jmol.script(myJmol, 'frame all; vibration scale 0.25; vibration on;');
+        break;
+    }
+  });
+
+/* Disable :hover when using screen touch devices */
+var touch = 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+if(touch) {
+  try {
+    for (var si in document.styleSheets) {
+      var styleSheet = document.styleSheets[si];
+      if (!styleSheet.rules) continue;
+
+      for (var ri = styleSheet.rules.length - 1; ri >= 0; ri--) {
+        if (!styleSheet.rules[ri].selectorText) continue;
+
+        if (styleSheet.rules[ri].selectorText.match(':hover')) {
+          styleSheet.deleteRule(ri);
+        }
+      }
+    }
+  } catch (ex) {}
+}
+</script>
+
+</body>
+</html>

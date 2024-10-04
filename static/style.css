@@ -1,0 +1,623 @@
+:root {
+  --text-size: 16px;
+  --text-height: 1.6rem;
+
+  --w: min(95vw, 95vh * 0.75);
+  --h: min(95vh, 95vw * 1.33);
+  --s: min(var(--w), var(--h));
+
+  --main-width: min(600px, 60vw);
+  --main-height: var(--main-width);
+  --side-width: min(300px, 30vw);
+  --full-width: calc(var(--main-width) + var(--side-width) + 10px);
+
+  --text-font: "Noto Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --code-font: "Noto Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --pink: #ad1457;
+  --lightblue: #3E95BA;
+  --green: #388E3C;
+  --yellow: #FBC02D;
+  --black: #000a12;
+  --white:   #ffffff;
+  --black00: #f7f7f7;
+  --black01: #dadada;
+  --black02: #cccccc;
+  --black03: #b0bec5;
+  --black04: #90a8ae;
+  --black05: #78909c;
+  --black06: #607d8b;
+  --black07: #546e7a;
+  --black08: #455a64;
+  --black09: #37474f;
+
+  --text-color: var(--black);
+  --background-color: var(--black00);
+  --primary-color: var(--lightblue);
+  --hover-color: var(--black);
+  --block-color: var(--black00);
+  --button-color: var(--black01);
+  --border-color: var(--black02);
+}
+
+html {
+  font-family: var(--text-font);
+  font-size: var(--text-size);
+  line-height: var(--text-height);
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  padding: 0 5px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  word-wrap: break-word;
+  margin: 0;
+  overflow-y: scroll;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  width: 100%;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+table {
+  table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 0.5rem 0;
+}
+
+th,
+td {
+  border-bottom: 1px dashed var(--border-color);
+  padding: 0.25rem 0.5rem;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  display: none;
+  padding: 0;
+  margin: 0;
+}
+
+button {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+/* header */
+
+header {
+  height: 38px;
+  margin: 0.5rem auto 0;
+}
+
+header span {
+  cursor: pointer;
+}
+
+#header-wide {
+  width: var(--full-width);
+}
+
+#header-mobile {
+  width: var(--main-width);
+  display: none;
+}
+
+#title {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+header div {
+  height: 100%;
+}
+
+/* nav */
+
+#nav {
+  width: var(--full-width);
+  height: 38px;
+  margin: 0.5rem auto 0;
+}
+
+main {
+  width: var(--main-width);
+  margin: 0;
+  padding: 0;
+}
+
+#side {
+  width: var(--side-width);
+  height: calc(var(--main-height) + 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-left: 10px;
+}
+
+.hide-nav {
+  display: none;
+}
+
+#nav-system {
+  width: var(--main-width);
+}
+
+#nav-property {
+  margin: 0 0 0 10px;
+  width: var(--side-width);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --main-width: 95vw;
+    --main-height: calc(100vh - 250px);
+    --main-height: calc(100dvh - 120px);
+  }
+  #main {
+    margin: 0 auto;
+  }
+  #nav {
+    display: none;
+    width: var(--main-width) !important;
+  }
+  #nav-system,
+  #nav-property {
+    margin: 0;
+    width: 100%;
+  }
+  .hide-nav {
+    display: block;
+  }
+  .hide-nav + form,
+  div + .hide-nav {
+    margin-left: 10px;
+  }
+  #header-wide {
+    display: none;
+  }
+  #header-mobile {
+    display: flex;
+  }
+  #side {
+    position: absolute;
+    right: 10px;
+    top: 0.5rem;
+    z-index: 9999;
+    width: calc(var(--main-width) - 10px);
+    height: calc(var(--main-height) - 15px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: rgba(255, 255, 255, 0.8);
+    -webkit-backgrop-filter:blur(10px);
+    -moz-backgrop-filter:blur(10px);
+    -ms-backgrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
+    display: none;
+  }
+}
+
+/* main*/
+
+#jmol {
+  width: var(--main-width);
+  height: var(--main-height);
+  margin: 0.5rem 0;
+}
+
+#output {
+  font-family: var(--code-font);
+  font-size: 0.75rem;
+  overflow-x: auto;
+  overflow-y: scroll;
+  width: calc(var(--main-width) - 20px);
+  height: var(--main-height);
+  margin: 0.5rem 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.75;
+  color: var(--white);
+  background-color: var(--black);
+  z-index: 10000;
+}
+
+#myJmol_canvas2d {
+  border-radius: 5px;
+}
+
+#myJmol_canvas2d:focus {
+  outline: none;
+}
+
+main .select-container {
+  width: var(--main-width);
+}
+
+aside .select-container {
+  width: var(--side-width);
+}
+
+#select-system .nice-select {
+  max-width: 28vw !important;
+}
+
+#select-system .nice-select span.current {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.control-button {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-color);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  border-radius: 5px;
+  background-color: var(--button-color);
+  cursor: pointer;
+  padding: 6px;
+  margin: 0 0.25rem;
+}
+
+.control-button:hover {
+  background-color: var(--black);
+  stroke: var(--white);
+}
+
+input[type="checkbox"]:checked + label .control-button {
+  background-color: var(--primary-color);
+  stroke: var(--white);
+}
+
+input[type="checkbox"][id$="menu"]:checked + label .control-button {
+  background-color: var(--text-color);
+  stroke: var(--white);
+}
+
+.control-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  margin: 0.75rem 0;
+  width: 120px;
+  bottom: 40px;
+  left: 0;
+  z-index: 10000;
+  position: absolute;
+}
+
+.control-menu input + label {
+  display: inline-block;
+  border-radius: 0;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  background-color: var(--button-color);
+  border-bottom: 1px solid var(--white);
+  cursor: pointer;
+}
+
+.control-menu input:checked + label {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.control-menu input:checked:hover + label {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.control-menu input:hover + label {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+#myJmol_console {
+  width: var(--main-width);
+  flex-direction: column;
+  display: flex;
+}
+
+#myJmol_console_inputdiv {
+  order: 1;
+  position: relative;
+  margin: 30px 0 0;
+}
+
+#myJmol_console_inputdiv::before {
+  font-size: 0.9rem;
+  content: "input";
+  margin-right: 0.5rem;
+  top: -1.6rem;
+  left: 0;
+  position: absolute;
+  color: var(--border-color);
+}
+
+#myJmol_console_input {
+  width: calc(var(--main-width) - 20px) !important;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 0.5rem;
+  font-family: var(--code-font);
+  font-size: 0.9rem;
+  background-color: var(--white);
+  color: var(--text-color);
+}
+
+#myJmol_console_outputdiv {
+  order: 2;
+  position: relative;
+  margin: 30px 0 0;
+}
+
+#myJmol_console_outputdiv::before {
+  font-size: 0.9rem;
+  content: "output";
+  margin-right: 0.5rem;
+  top: -1.6rem;
+  left: 0;
+  position: absolute;
+  color: var(--border-color);
+}
+
+#myJmol_console_output {
+  width: calc(var(--main-width) - 20px) !important;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  font-family: var(--code-font);
+  font-size: 0.9rem;
+  background-color: var(--black);
+  color: var(--white);
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+#myJmol_console_input:focus,
+#myJmol_console_output:focus {
+  outline: none;
+}
+
+#myJmol_console_input:focus-visible,
+#myJmol_console_output:focus-visible {
+  outline: 1px solid var(--primary-color);
+}
+
+#myJmol_console_buttondiv {
+  display: none;
+}
+
+#myJmol_console_label1 {
+  display: none;
+}
+
+/* side */
+
+#Overview {
+  display: block;
+}
+
+.property {
+  width: 100%;
+  display: none;
+  margin: 1rem 0 0.5rem;
+}
+
+.property .label {
+  text-align: center;
+}
+
+.property .value {
+  font-family: var(--code-font);
+  text-align: right;
+}
+
+.property .unit {
+  font-size: 0.8rem;
+}
+
+.property .button {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
+  width: 36px;
+  border-radius: 5px;
+  padding: 0;
+  margin: 0;
+  background-color: var(--button-color);
+  cursor: pointer;
+}
+
+.property .button:hover {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.property input:checked + .button {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.switch-container {
+  margin: 1.5rem 0;
+}
+
+.switch {
+  display: block;
+  width: 100%;
+  margin: 0.5rem;
+}
+
+.switch::before {
+  display: inline-block;
+  content: "OFF";
+  width: 1.75rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: var(--text-color);
+  border-radius: 5px;
+  padding: 0 0.25rem;
+  text-align: center;
+  background-color: var(--button-color);
+  cursor: pointer;
+}
+
+input:checked + .switch::before {
+  content: "ON";
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+/* details */
+
+details {
+  margin: 1rem 0;
+  list-style: none;
+  font-size: 1rem;
+}
+
+.details-container {
+  padding: 0 0.5rem;
+}
+
+summary::-webkit-details-marker {
+  display:none;
+}
+
+summary {
+  display: block;
+  width: 36px;
+  height: 36px;
+  position: relative;
+  background-color: var(--button-color);
+  border-radius: 5px;
+  margin: 0.5rem;
+  cursor: pointer;
+}
+
+summary:hover {
+  background-color: var(--hover-color);
+}
+
+summary:hover::before {
+  background-color: var(--white);
+}
+
+summary::before {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-color: var(--text-color);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+  mask-repeat: no-repeat;
+  left: 6px;
+  top: 6px;
+  position: absolute;
+  cursor: pointer;
+}
+
+details[open] summary {
+  background-color: var(--primary-color);
+}
+
+details[open] summary::before {
+  background-color: var(--white);
+}
+
+pre {
+  font-family: var(--code-font);
+  font-size: 0.75rem;
+  background-color: var(--block-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  line-height: 1rem;
+  height: 80vh;
+}
+
+/* nice select */
+
+.nice-select {
+  background-color: var(--button-color) !important;
+  margin: 0;
+  border: 0 !important;
+  z-index: 10000;
+  flex-grow: 1;
+  padding-left: 10px !important;
+  padding-right: 20px !important;
+}
+
+.nice-select:after {
+  right: 10px !important;
+}
+
+.nice-select.open,
+.nice-select:hover {
+  background-color: var(--black) !important;
+  color: var(--white) !important;
+}
+
+.nice-select + select + .nice-select {
+  margin-left: 5px !important;
+}
+
+.nice-select .current {
+  font-weight: bold !important;
+}
+
+.nice-select-dropdown {
+  color: var(--text-color) !important;
+  box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.12),0 1px 5px 0 rgba(0,0,0,.2) !important;
+}
+
+.nice-select ul {
+  border-radius: 0 !important;
+}
+
+.nice-select .option.selected {
+  color: var(--primary-color) !important;
+}
