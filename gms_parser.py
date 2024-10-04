@@ -45,34 +45,34 @@ def gparse(molecule, method, basis, parse_type="default"):
 
 def default_parse(out_str, r):
 
-    runtyp_re = re.compile("RUNTYP=(\S+)[\s]*")
+    runtyp_re = re.compile(r"RUNTYP=(\S+)[\s]*")
 
-    num_basis_re = re.compile("TOTAL NUMBER OF BASIS SET SHELLS(.*?)\n")
-    num_electron_re = re.compile("NUMBER OF ELECTRONS(.*?)\n")
-    eigen_re = re.compile("EIGENVECTORS(.*?)\n\n     ------", re.DOTALL)
-    eng_total_re = re.compile("TOTAL ENERGY =(.*)\n")
-    eng_potential_re = re.compile("TOTAL POTENTIAL ENERGY =(.*)\n")
-    eng_kinetic_re = re.compile("TOTAL KINETIC ENERGY =(.*)\n")
-    virial_ratio_re = re.compile("VIRIAL RATIO \(V/T\) =(.*)\n")
-    pop_re = re.compile("TOTAL MULLIKEN AND LOWDIN ATOMIC POPULATIONS(.*?)\n\n", re.DOTALL)
-    dipole_moment_re = re.compile("DEBYE\)\n(.*?)\n \.\.", re.DOTALL)
+    num_basis_re = re.compile(r"TOTAL NUMBER OF BASIS SET SHELLS(.*?)\n")
+    num_electron_re = re.compile(r"NUMBER OF ELECTRONS(.*?)\n")
+    eigen_re = re.compile(r"EIGENVECTORS(.*?)\n\n     ------", re.DOTALL)
+    eng_total_re = re.compile(r"TOTAL ENERGY =(.*)\n")
+    eng_potential_re = re.compile(r"TOTAL POTENTIAL ENERGY =(.*)\n")
+    eng_kinetic_re = re.compile(r"TOTAL KINETIC ENERGY =(.*)\n")
+    virial_ratio_re = re.compile(r"VIRIAL RATIO \(V/T\) =(.*)\n")
+    pop_re = re.compile(r"TOTAL MULLIKEN AND LOWDIN ATOMIC POPULATIONS(.*?)\n\n", re.DOTALL)
+    dipole_moment_re = re.compile(r"DEBYE\)\n(.*?)\n \.\.", re.DOTALL)
 
     # if RUNTYP is OPTIMIZE
-    nsearch_re = re.compile("    NSERCH=(.*)\n")
-    coord_re = re.compile("COORDINATES OF ALL ATOMS ARE (.*?)------------\n(.*?)\n\n", re.DOTALL)
+    nsearch_re = re.compile(r"    NSERCH=(.*)\n")
+    coord_re = re.compile(r"COORDINATES OF ALL ATOMS ARE (.*?)------------\n(.*?)\n\n", re.DOTALL)
     #mo_re = re.compile("MOLECULAR ORBITALS(.*?)\n\n     ------", re.DOTALL)
 
     # if RUNTYP is HESSIAN
-    offset_re = re.compile("MODES    1 TO (.*) ARE TAKEN", re.DOTALL)
-    ir_re = re.compile("SYMMETRY  RED\. MASS  IR INTENS\.\n(.*?)\n\n     ------", re.DOTALL)
-    temperature_re = re.compile("THERMOCHEMISTRY AT T=(.*?) K\n", re.DOTALL)
-    zpe_re = re.compile("THE HARMONIC ZERO POINT ENERGY IS(.*?)KCAL/MOL", re.DOTALL)
-    thermo_re = re.compile("CAL/MOL-K\n(.*?)\n VIB. THERMAL", re.DOTALL)
-    stationary_point_re = re.compile("THIS IS NOT A STATIONARY POINT ON THE MOLECULAR PES")
+    offset_re = re.compile(r"MODES    1 TO (.*) ARE TAKEN", re.DOTALL)
+    ir_re = re.compile(r"SYMMETRY  RED\. MASS  IR INTENS\.\n(.*?)\n\n     ------", re.DOTALL)
+    temperature_re = re.compile(r"THERMOCHEMISTRY AT T=(.*?) K\n", re.DOTALL)
+    zpe_re = re.compile(r"THE HARMONIC ZERO POINT ENERGY IS(.*?)KCAL/MOL", re.DOTALL)
+    thermo_re = re.compile(r"CAL/MOL-K\n(.*?)\n VIB. THERMAL", re.DOTALL)
+    stationary_point_re = re.compile(r"THIS IS NOT A STATIONARY POINT ON THE MOLECULAR PES")
 
-    nmr_re = re.compile("GIAO CHEMICAL SHIELDING TENSOR \(PPM\):\n(.*?)DONE WITH NMR SHIELDINGS", re.DOTALL)
-    tddft_re = re.compile("SUMMARY OF TDDFT RESULTS\n\n(.*?)\n TRANSITION", re.DOTALL)
-    pcm_eng_re = re.compile("RESULTS OF PCM CALCULATION(.*?)A\.U\.\n\n", re.DOTALL)
+    nmr_re = re.compile(r"GIAO CHEMICAL SHIELDING TENSOR \(PPM\):\n(.*?)DONE WITH NMR SHIELDINGS", re.DOTALL)
+    tddft_re = re.compile(r"SUMMARY OF TDDFT RESULTS\n\n(.*?)\n TRANSITION", re.DOTALL)
+    pcm_eng_re = re.compile(r"RESULTS OF PCM CALCULATION(.*?)A\.U\.\n\n", re.DOTALL)
 
     # RUNTYP
     r.runtyp = None
